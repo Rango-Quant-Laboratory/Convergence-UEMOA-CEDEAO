@@ -1,0 +1,33 @@
+{
+  "source": "WDI (API wbgapi, db=2)",
+  "date_telechargement": "2026-11-05T12:32:16",
+  "indicateurs": [
+    "NY.GDP.PCAP.PP.KD",
+    "NE.GDI.FTOT.ZS",
+    "SP.POP.GROW",
+    "NE.TRD.GNFS.ZS"
+  ],
+  "pays": [
+    "BEN",
+    "BFA",
+    "CIV",
+    "GNB",
+    "MLI",
+    "NER",
+    "SEN",
+    "TGO",
+    "CPV",
+    "GMB",
+    "GHA",
+    "GIN",
+    "LBR",
+    "NGA",
+    "SLE"
+  ],
+  "periode": [
+    1990,
+    2023
+  ],
+  "wbgapi_version": "1.0.14",
+  "derniere_maj_source": "2026-10-08"
+}

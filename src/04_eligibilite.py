@@ -10,7 +10,7 @@
   python 04_eligibilite.py appliquer [--cran +1|-1]
       REFUSE de tourner si : gel non scellé, hash des seuils différent, commit introuvable, ou config.py modifié depuis le
       commit 2. Produit éligibilité, journal des pays perdus et drapeaux. --cran = robustesse ±1 cran (jamais en base)."""
-import argparse, datetime as dt, json, re, subprocess
+import argparse, datetime as dt, json, re, subprocess, time
 import pandas as pd
 import config as C
 import regles as R
@@ -28,6 +28,17 @@ def exiger_depot():
     gi = C.ROOT / ".gitignore"
     if not gi.exists():
         gi.write_text("__pycache__/\n*.pyc\n", encoding="utf-8")
+
+def ecrire_data_md(txt, essais=6):
+    """Écrit Data.md en réessayant : sous Windows/OneDrive le fichier est parfois verrouillé quelques secondes."""
+    for _ in range(essais):
+        try:
+            C.DATA_MD.write_text(txt, encoding="utf-8")
+            return
+        except PermissionError:
+            time.sleep(2)
+    raise SystemExit("Data.md est VERROUILLÉ (ouvert dans un autre programme, ou OneDrive le synchronise). Ferme-le / mets OneDrive "
+                     "en pause, puis RELANCE la même commande : un commit 2 déjà fait est repris, rien n'est perdu.")
 
 def calculer(cran=0):
     flags = pd.read_csv(C.PROC / "long.csv", usecols=["iso3", "year", "variable", "source", "observe", "in_source"])
@@ -56,7 +67,7 @@ def preparer():
         raise SystemExit("Un gel est déjà SCELLÉ. Toute modification = amendement daté (fait nouveau, 2e validation), pas un nouveau gel.")
     if b:                                                          # un brouillon n'est pas un fait : on le remplace
         txt = txt[:b[0]].rstrip() + "\n" + txt[b[1]:]
-        C.DATA_MD.write_text(txt, encoding="utf-8")
+        ecrire_data_md(txt)
     am = C.ROOT / "amendement_H3.md"
     if am.exists() and "## AMENDEMENT H3" not in txt:
         with open(C.DATA_MD, "a", encoding="utf-8") as f:
@@ -106,14 +117,26 @@ def sceller(validateur, solo):
         raise SystemExit("Le validateur doit être une AUTRE personne que l'auteur du commit. "
                          "Si tu travailles seul : --solo (consigné comme déviation au protocole).")
     mention = validateur if not solo else f"{validateur} (VALIDATION SOLO — déviation au protocole, à écrire dans les limites)"
-    git("add", "src", "Data.md", ".gitignore")
-    r = git("commit", "-m", "Commit 2 : gel des seuils et amendement H3")
-    if r.returncode != 0:
-        raise SystemExit("Commit 2 impossible :\n" + (r.stderr or r.stdout))
+    deja = (git("log", "-1", "--pretty=%s").stdout.strip().startswith("Commit 2 :")
+            and git("status", "--porcelain", "--", "src", "Data.md").stdout.strip() == "")
+    if deja:
+        print("Reprise : le commit 2 existe déjà (écriture interrompue la fois d'avant), on le réutilise.")
+    else:
+        for p in ("src", "Data.md", ".gitignore", "data/raw", "amendement_H3.md", "cas_non_prevu_GNB.md"):
+            if (C.ROOT / p).exists():
+                git("add", p)                                       # raw/ est versionné (rubrique 5.2)
+        if git("diff", "--cached", "--quiet").returncode == 0:      # rien de nouveau : déjà commité à la main
+            if git("status", "--porcelain", "--", "src", "Data.md").stdout.strip():
+                raise SystemExit("État git inattendu : src ou Data.md modifiés mais non indexables. Lance `git status`.")
+            print("Aucun changement à commiter : le dépôt contient déjà l'état gelé, HEAD sert de commit 2.")
+        else:
+            r = git("commit", "-m", "Commit 2 : gel des seuils et amendement H3")
+            if r.returncode != 0:
+                raise SystemExit("Commit 2 impossible :\n" + (r.stderr or r.stdout))
     h = git("rev-parse", "--short", "HEAD").stdout.strip()
     for titre in ("GEL", "AMENDEMENT H3", "CAS NON PRÉVU"):         # scelle aussi les cas non prévus consignés
         txt = sceller_bloc(txt, titre, h, mention)
-    C.DATA_MD.write_text(txt, encoding="utf-8")
+    ecrire_data_md(txt)
     git("add", "Data.md")
     git("commit", "-m", f"Data.md : sceau du gel (commit 2 = {h})")
     print(f"Gel SCELLÉ. Commit 2 = {h} ; validé par : {mention}")
