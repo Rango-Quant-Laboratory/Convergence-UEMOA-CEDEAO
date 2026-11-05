@@ -67,7 +67,7 @@ def main(stats_manuelles=False):
     wide = long.pivot(index=["iso3", "year"], columns="variable", values="value").reset_index()
     pib = R.series_pib(wide)                                   # vérifie que le log porte sur un NIVEAU par habitant
     pib.to_csv(C.PROC / "annuel_pib.csv", index=False)
-    construire_coupe(pib, wide, "ln_wdi", flags).to_csv(C.PROC / "coupe_wdi.csv", index=False)
+    cw = construire_coupe(pib, wide, "ln_wdi", flags); cw.to_csv(C.PROC / "coupe_wdi.csv", index=False)
     construire_coupe(pib, wide, "ln_pwt_o", flags).to_csv(C.PROC / "coupe_pwt.csv", index=False)
     bw, bp = construire_blocs(pib, "ln_wdi"), construire_blocs(pib, "ln_pwt_o")
     bw.to_csv(C.PROC / "blocs_wdi.csv", index=False); bp.to_csv(C.PROC / "blocs_pwt.csv", index=False)
@@ -79,7 +79,21 @@ def main(stats_manuelles=False):
     assert len(wdi[wdi["iso3"].isin(base)]) == len(base) * C.N_ANNEES, "lignes de base ≠ N × 34"
     print(f"Contrôles OK : {len(wdi)} lignes de départ ; base en coupe = {len(base)} × 34 = {len(base) * C.N_ANNEES}")
     j = pd.read_csv(C.PROC / "journal_pays_perdus.csv")
-    print(f"Journal : {len(j)} exclusions (pays × niveau × variable) — à reprendre dans Data.md")
+    print(f"Journal : {len(j)} exclusions (pays × niveau × variable) — repris dans Data.md")
+    def panel(b):
+        return f"{b[b['dans_panel']]['iso3'].nunique()} pays, {int((b['dans_panel'] & b['intervalle_ok']).sum())} intervalles de croissance valides (max 75)"
+    mixtes = bw[(bw["part_uemoa"] > 0) & (bw["part_uemoa"] < 1)]
+    n_coupe = int(((cw["elig_coupe_base_gdppc_wdi"] == 1) & cw["y_init"].notna() & cw["y_fin"].notna()).sum())
+    R.consigner("CONSTRUCTION DES VARIABLES (étape 5)", [
+        f"- coupe WDI : {n_coupe} pays de la base avec revenu initial (moy. logs {C.FENETRE_INIT}) et final ({C.FENETRE_FIN}), T = {C.T_COUPE} ans",
+        f"- panel WDI : {panel(bw)}",
+        f"- panel PWT (rgdpo/pop) : {panel(bp)}",
+        "- blocs à appartenance mixte (cas non prévu, règle « majorité des années ») : "
+        + (", ".join(f"{r.iso3} {r.debut}–{r.fin} (part UEMOA {r.part_uemoa:.1f} -> {'UEMOA' if r.uemoa else 'hors UEMOA'})" for r in mixtes.itertuples()) or "aucun"),
+        "- covariables : moyennes sur 1990–2023 ; ln_s (csh_i), ln_ngd (croissance démographique + 0,05), ln_hc : transformations PROVISOIRES, à confirmer dans equations.md",
+        f"- contrôles de fin de chaîne OK ({len(wdi)} lignes de départ ; base = {len(base)} × {C.N_ANNEES} = {len(base) * C.N_ANNEES})",
+        f"- journal des pays perdus : {len(j)} lignes (processed/journal_pays_perdus.csv)",
+        f"- statistiques min/max du PIB/hab. affichées pour lecture manuelle : {'oui' if stats_manuelles else 'non (option --stats-manuelles non utilisée)'}"])
     if stats_manuelles:
         print("\nÀ LIRE UNE FOIS À LA MAIN (unité aberrante, ligne d'agrégat) :")
         print(wdi.groupby("iso3")["value"].agg(["min", "max"]).round(0).to_string())

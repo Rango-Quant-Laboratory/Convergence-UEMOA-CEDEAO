@@ -1,0 +1,10 @@
+iso3,niveau,variable,eligible,regle_declenchee,date
+GNB,coupe_base,gdppc_wdi,False,statut_groupe_non_constant,2026-11-05
+CPV,covariable,inv_wdi,False,n_obs=0 (exigé >= 27),2026-11-05
+LBR,covariable,inv_wdi,False,n_obs=0 (exigé >= 27),2026-11-05
+NGA,covariable,inv_wdi,False,n_obs=0 (exigé >= 27),2026-11-05
+LBR,covariable,trade_wdi,False,n_obs=0 (exigé >= 27),2026-11-05
+NGA,covariable,trade_wdi,False,n_obs=0 (exigé >= 27),2026-11-05
+CPV,covariable,hc_pwt,False,n_obs=0 (exigé >= 27),2026-11-05
+GIN,covariable,hc_pwt,False,n_obs=0 (exigé >= 27),2026-11-05
+GNB,covariable,hc_pwt,False,n_obs=0 (exigé >= 27),2026-11-05

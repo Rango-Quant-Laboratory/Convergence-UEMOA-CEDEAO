@@ -1,0 +1,18 @@
+{
+  "lignes": 4590,
+  "pays": 15,
+  "annees": 34,
+  "variables": [
+    "gdppc_wdi",
+    "inv_wdi",
+    "popgrow_wdi",
+    "trade_wdi",
+    "hc_pwt",
+    "csh_i_pwt",
+    "rgdpo_pwt",
+    "rgdpna_pwt",
+    "pop_pwt"
+  ],
+  "pwt_fichier": "pwt110.dta",
+  "controles": "OK"
+}

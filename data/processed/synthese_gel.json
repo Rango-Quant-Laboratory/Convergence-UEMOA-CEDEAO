@@ -1,0 +1,147 @@
+{
+  "base": [
+    "BEN",
+    "BFA",
+    "CIV",
+    "CPV",
+    "GHA",
+    "GIN",
+    "GMB",
+    "LBR",
+    "MLI",
+    "NER",
+    "NGA",
+    "SEN",
+    "SLE",
+    "TGO"
+  ],
+  "n_base": 14,
+  "n_groupes_base": {
+    "UEMOA": 7,
+    "HORS": 7
+  },
+  "par_covariable": {
+    "popgrow_wdi": [
+      "BEN",
+      "BFA",
+      "CIV",
+      "CPV",
+      "GHA",
+      "GIN",
+      "GMB",
+      "LBR",
+      "MLI",
+      "NER",
+      "NGA",
+      "SEN",
+      "SLE",
+      "TGO"
+    ],
+    "csh_i_pwt": [
+      "BEN",
+      "BFA",
+      "CIV",
+      "CPV",
+      "GHA",
+      "GIN",
+      "GMB",
+      "LBR",
+      "MLI",
+      "NER",
+      "NGA",
+      "SEN",
+      "SLE",
+      "TGO"
+    ]
+  },
+  "commun_conditionnel": [
+    "BEN",
+    "BFA",
+    "CIV",
+    "CPV",
+    "GHA",
+    "GIN",
+    "GMB",
+    "LBR",
+    "MLI",
+    "NER",
+    "NGA",
+    "SEN",
+    "SLE",
+    "TGO"
+  ],
+  "n_groupes_cond": {
+    "UEMOA": 7,
+    "HORS": 7
+  },
+  "par_extension": {
+    "inv_wdi": [
+      "BEN",
+      "BFA",
+      "CIV",
+      "GHA",
+      "GIN",
+      "GMB",
+      "MLI",
+      "NER",
+      "SEN",
+      "SLE",
+      "TGO"
+    ],
+    "trade_wdi": [
+      "BEN",
+      "BFA",
+      "CIV",
+      "CPV",
+      "GHA",
+      "GIN",
+      "GMB",
+      "MLI",
+      "NER",
+      "SEN",
+      "SLE",
+      "TGO"
+    ],
+    "hc_pwt": [
+      "BEN",
+      "BFA",
+      "CIV",
+      "GHA",
+      "GMB",
+      "LBR",
+      "MLI",
+      "NER",
+      "NGA",
+      "SEN",
+      "SLE",
+      "TGO"
+    ]
+  },
+  "n_cond": 14,
+  "k": 4,
+  "ddl": 10,
+  "conditionnel_ok": true,
+  "panel": [
+    "BEN",
+    "BFA",
+    "CIV",
+    "CPV",
+    "GHA",
+    "GIN",
+    "GMB",
+    "GNB",
+    "LBR",
+    "MLI",
+    "NER",
+    "NGA",
+    "SEN",
+    "SLE",
+    "TGO"
+  ],
+  "n_panel": 15,
+  "n_groupes_panel": {
+    "UEMOA": 8,
+    "HORS": 7
+  },
+  "alertes": []
+}

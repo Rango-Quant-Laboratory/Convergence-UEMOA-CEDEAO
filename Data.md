@@ -128,3 +128,149 @@ Aucune alerte : valeurs de départ gelables telles quelles.
   - aucun
 - alertes_4.6: aucune
 - valide_par: Armando (VALIDATION SOLO — déviation au protocole, à écrire dans les limites)
+
+
+## CONSTRUCTION DES VARIABLES (étape 5) — 2026-11-05
+
+- coupe WDI : 14 pays de la base avec revenu initial (moy. logs (1990, 1994)) et final ((2019, 2023)), T = 29 ans
+- panel WDI : 15 pays, 75 intervalles de croissance valides (max 75)
+- panel PWT (rgdpo/pop) : 15 pays, 75 intervalles de croissance valides (max 75)
+- blocs à appartenance mixte (cas non prévu, règle « majorité des années ») : GNB 1995–1999 (part UEMOA 0.6 -> UEMOA)
+- covariables : moyennes sur 1990–2023 ; ln_s (csh_i), ln_ngd (croissance démographique + 0,05), ln_hc : transformations PROVISOIRES, à confirmer dans equations.md
+- contrôles de fin de chaîne OK (510 lignes de départ ; base = 14 × 34 = 476)
+- journal des pays perdus : 9 lignes (processed/journal_pays_perdus.csv)
+- statistiques min/max du PIB/hab. affichées pour lecture manuelle : non (option --stats-manuelles non utilisée)
+
+
+## CONSTRUCTION DES VARIABLES (étape 5) — 2026-11-05
+
+- coupe WDI : 14 pays de la base avec revenu initial (moy. logs (1990, 1994)) et final ((2019, 2023)), T = 29 ans
+- panel WDI : 15 pays, 75 intervalles de croissance valides (max 75)
+- panel PWT (rgdpo/pop) : 15 pays, 75 intervalles de croissance valides (max 75)
+- blocs à appartenance mixte (cas non prévu, règle « majorité des années ») : GNB 1995–1999 (part UEMOA 0.6 -> UEMOA)
+- covariables : moyennes sur 1990–2023 ; ln_s (csh_i), ln_ngd (croissance démographique + 0,05), ln_hc : transformations PROVISOIRES, à confirmer dans equations.md
+- contrôles de fin de chaîne OK (510 lignes de départ ; base = 14 × 34 = 476)
+- journal des pays perdus : 9 lignes (processed/journal_pays_perdus.csv)
+- statistiques min/max du PIB/hab. affichées pour lecture manuelle : non (option --stats-manuelles non utilisée)
+
+
+## RUPTURES ET SOURCES CROISÉES (étape 6) — 2026-11-05
+
+### Alertes de rupture (seuil 0.15) : 20 (pays, année, ampleur par source, classement)
+```
+iso3  year  ampleur_wdi  ampleur_pwt                            classement
+ CPV  1994        0.155        0.047 artefact WDI (à estimer avec et sans)
+ CPV  2020       -0.234       -0.234                 réelle (deux sources)
+ CPV  2022        0.141        0.155 artefact PWT (à estimer avec et sans)
+ GNB  1998       -0.273       -0.204                 réelle (deux sources)
+ LBR  1992       -0.490       -0.490                 réelle (deux sources)
+ LBR  1993       -0.439       -0.439                 réelle (deux sources)
+ LBR  1994       -0.243       -0.243                 réelle (deux sources)
+ LBR  1997        0.646        0.646                 réelle (deux sources)
+ LBR  1998        0.163        0.163                 réelle (deux sources)
+ LBR  2000        0.215        0.215                 réelle (deux sources)
+ LBR  2003       -0.367       -0.367                 réelle (deux sources)
+ LBR  2007        0.041        0.282 artefact PWT (à estimer avec et sans)
+ MLI  1995       -0.014        0.295 artefact PWT (à estimer avec et sans)
+ MLI  1996        0.040        0.162 artefact PWT (à estimer avec et sans)
+ SLE  1992       -0.192       -0.082 artefact WDI (à estimer avec et sans)
+ SLE  1996        0.013       -0.290 artefact PWT (à estimer avec et sans)
+ SLE  1997       -0.073       -0.206 artefact PWT (à estimer avec et sans)
+ SLE  2002        0.178        0.177                 réelle (deux sources)
+ SLE  2013        0.112        0.164 artefact PWT (à estimer avec et sans)
+ TGO  1993       -0.152       -0.172                 réelle (deux sources)
+```
+### Classement des pays WDI vs PWT (corrélation de rang des moyennes de bloc ; niveaux différents attendus)
+```
+ bloc   periode  n_pays  rho_rang
+    0 1990–1994      15     0.471
+    1 1995–1999      15     0.521
+    2 2000–2004      15     0.600
+    3 2005–2009      15     0.914
+    4 2010–2014      15     0.929
+    5 2015–2019      15     0.961
+```
+### Signes WDI vs PWT (coupe de base, N = 14)
+```
+source  beta_abs  interaction
+   WDI  -0.00391     -0.00426
+   PWT  -0.01981      0.01145
+```
+- β absolu : signes identiques
+- interaction de groupe : SIGNES DIFFÉRENTS -> résultat « FRAGILE », on ne rattrape pas
+### Pays dominants (indicatif ; repérés, jamais exclus de la base)
+```
+         pib_moy groupe  part_groupe  dominant
+iso3                                          
+CIV    76864.439  UEMOA        0.331      True
+NGA   598490.633   HORS        0.785      True
+```
+
+
+## TESTS SUR JOUET (étape 7) — 2026-11-05
+
+- OK : T1 σ à la main (3 pays)
+- OK : T2 vitesse de convergence connue retrouvée
+- OK : T3 trou volontaire détecté et journalisé
+- ces tests doivent être lancés AVANT les vraies données : l'ordre se lit par les dates des sections de ce journal
+
+
+## RUPTURES ET SOURCES CROISÉES (étape 6) — 2026-11-05
+
+### Alertes de rupture (seuil 0.15) : 20 (pays, année, ampleur par source, classement)
+```
+iso3  year  ampleur_wdi  ampleur_pwt                            classement
+ CPV  1994        0.155        0.047 artefact WDI (à estimer avec et sans)
+ CPV  2020       -0.234       -0.234                 réelle (deux sources)
+ CPV  2022        0.141        0.155 artefact PWT (à estimer avec et sans)
+ GNB  1998       -0.273       -0.204                 réelle (deux sources)
+ LBR  1992       -0.490       -0.490                 réelle (deux sources)
+ LBR  1993       -0.439       -0.439                 réelle (deux sources)
+ LBR  1994       -0.243       -0.243                 réelle (deux sources)
+ LBR  1997        0.646        0.646                 réelle (deux sources)
+ LBR  1998        0.163        0.163                 réelle (deux sources)
+ LBR  2000        0.215        0.215                 réelle (deux sources)
+ LBR  2003       -0.367       -0.367                 réelle (deux sources)
+ LBR  2007        0.041        0.282 artefact PWT (à estimer avec et sans)
+ MLI  1995       -0.014        0.295 artefact PWT (à estimer avec et sans)
+ MLI  1996        0.040        0.162 artefact PWT (à estimer avec et sans)
+ SLE  1992       -0.192       -0.082 artefact WDI (à estimer avec et sans)
+ SLE  1996        0.013       -0.290 artefact PWT (à estimer avec et sans)
+ SLE  1997       -0.073       -0.206 artefact PWT (à estimer avec et sans)
+ SLE  2002        0.178        0.177                 réelle (deux sources)
+ SLE  2013        0.112        0.164 artefact PWT (à estimer avec et sans)
+ TGO  1993       -0.152       -0.172                 réelle (deux sources)
+```
+### Classement des pays WDI vs PWT (corrélation de rang des moyennes de bloc ; niveaux différents attendus)
+```
+ bloc   periode  n_pays  rho_rang
+    0 1990–1994      15     0.471
+    1 1995–1999      15     0.521
+    2 2000–2004      15     0.600
+    3 2005–2009      15     0.914
+    4 2010–2014      15     0.929
+    5 2015–2019      15     0.961
+```
+### Signes WDI vs PWT (coupe de base, N = 14)
+```
+source  beta_abs  interaction
+   WDI  -0.00391     -0.00426
+   PWT  -0.01981      0.01145
+```
+- β absolu : signes identiques
+- interaction de groupe : SIGNES DIFFÉRENTS -> résultat « FRAGILE », on ne rattrape pas
+### Pays dominants (indicatif ; repérés, jamais exclus de la base)
+```
+         pib_moy groupe  part_groupe  dominant
+iso3                                          
+CIV    76864.439  UEMOA        0.331      True
+NGA   598490.633   HORS        0.785      True
+```
+
+
+## TESTS SUR JOUET (étape 7) — 2026-11-05
+
+- OK : T1 σ à la main (3 pays)
+- OK : T2 vitesse de convergence connue retrouvée
+- OK : T3 trou volontaire détecté et journalisé
+- ces tests doivent être lancés AVANT les vraies données : l'ordre se lit par les dates des sections de ce journal

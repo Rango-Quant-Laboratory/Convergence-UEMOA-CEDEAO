@@ -1,0 +1,260 @@
+% !TeX program = xelatex
+\documentclass[14pt,a4paper]{article}
+
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Termes}
+\setmonofont{TeX Gyre Cursor}
+\usepackage[french]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage[most]{tcolorbox}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.7em}
+\setlist{itemsep=0.2em,topsep=0.3em}
+
+% Lettres grecques utilisables dans les titres (signets PDF compris)
+\newcommand{\sig}{\texorpdfstring{$\sigma$}{sigma}}
+\newcommand{\bet}{\texorpdfstring{$\beta$}{beta}}
+
+\newtcolorbox{encadre}{
+	enhanced, breakable,
+	colback=blue!4, colframe=blue!50!black,
+	boxrule=0pt, leftrule=3pt, arc=0pt,
+	left=10pt, right=10pt, top=6pt, bottom=6pt
+}
+
+\title{\textbf{Summary --- Convergence économique (\sig{} et \bet{}) dans l'UEMOA et la CEDEAO}}
+\author{}
+\date{}
+
+\begin{document}
+	\maketitle
+	
+	%------------------------------------------------------------
+	\section{Problématique}
+	
+	Les pays à faible revenu rattrapent-ils les plus riches ? La littérature distingue la \sig-convergence (les revenus par habitant se rapprochent) et la \bet-convergence (les pays pauvres croissent plus vite), absolue ou conditionnelle aux déterminants propres à chaque pays. L'Afrique de l'Ouest offre un cadre naturel : une union monétaire et douanière (UEMOA, franc CFA) à l'intérieur d'un ensemble plus large (CEDEAO) aux régimes monétaires hétérogènes.
+	
+	%------------------------------------------------------------
+	\section{Question}
+	
+	Les pays de la CEDEAO (échantillon de 15 pays, dont 14 en base en coupe) convergent-ils sur 1990--2023, et l'appartenance formelle à l'UEMOA est-elle associée à une vitesse de convergence différente de celle des pays hors UEMOA ?
+	
+	\textbf{Portée :} on mesure une \textbf{différence de convergence entre groupes}, pas l'effet causal de l'union. L'adhésion n'est pas aléatoire.
+	
+	%------------------------------------------------------------
+	\section{Définitions simples}
+	
+	\textbf{\boldmath\sig-convergence.} Regarde l'\textbf{écart de richesse entre les pays}, année par année. Si cet écart se réduit au fil du temps, les pays se rapprochent : il y a \sig-convergence. Elle répond à la question <<~les pays sont-ils de plus en plus semblables ?~>>, mais ne dit pas qui rattrape qui.
+	
+	\textbf{\boldmath\bet-convergence absolue.} Regarde si les pays \textbf{les plus pauvres au départ ont grandi plus vite} que les riches, sans tenir compte de rien d'autre. Elle suppose implicitement que tous les pays tendent vers le même niveau de vie à long terme. C'est le test du <<~rattrapage~>> au sens le plus simple.
+	
+	\textbf{\boldmath\bet-convergence conditionnelle.} Même question, mais en comparant des pays \textbf{à caractéristiques égales} (épargne et investissement, croissance de la population, niveau d'éducation). Elle teste si chaque pays se rapproche de \textit{son propre} niveau de long terme, qui peut différer d'un pays à l'autre. Un pays peut être pauvre et ne pas rattraper, simplement parce que ses fondamentaux sont faibles.
+	
+	\textbf{Panel.} On suit \textbf{les mêmes pays sur plusieurs périodes successives} (ici des blocs de 5 ans) au lieu d'une seule photo début-fin. Les effets fixes retirent ce qui est propre à chaque pays et ne change pas (géographie, histoire, institutions stables) : la comparaison se fait alors \textbf{d'un pays avec lui-même dans le temps}. Contrepartie : le niveau du groupe UEMOA est absorbé, seule la différence de \textbf{vitesse} entre groupes reste mesurable.
+	
+	\textbf{Quelques repères qui servent plus bas}
+	\begin{itemize}
+		\item \textit{Moyenne des logs} : on moyenne le logarithme du revenu sur la fenêtre, ce qui revient à moyenner en pourcentages et non en dollars.
+		\item \textit{Test de permutation} : on réattribue au hasard l'étiquette UEMOA à 7 des 14 pays et on regarde si la différence observée sort de l'ordinaire. Il ne demande aucune hypothèse sur la forme des données.
+		\item \textit{Biais de Nickell} : avec peu de périodes, les effets fixes font paraître la convergence plus forte qu'elle n'est, alors que les MCO groupés la font paraître plus faible. On le traite avec une méthode de correction (LSDVC) et on rapporte aussi la plage entre les deux.
+		\item \textit{Clusters} : avec seulement 15 pays, les erreurs-types usuelles sont peu fiables ; on les complète par un bootstrap adapté.
+	\end{itemize}
+	
+	%------------------------------------------------------------
+	\section{Hypothèses (fixées avant les résultats)}
+	
+	\begin{center}
+		\small
+		\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+			\toprule
+			\textbf{N\textsuperscript{o}} & \textbf{Hypothèse} & \textbf{Ce qui la réfute} \\
+			\midrule
+			H1 (\sig) & La dispersion des revenus diminue sur 1990--2023 & Tendance nulle ou positive \\
+			\addlinespace
+			H2 (\bet{} absolue) & Les pays pauvres au départ croissent plus vite (coefficient négatif) & Coefficient positif ou non distinguable de zéro \\
+			\addlinespace
+			H3 (\bet{} conditionnelle) & Le coefficient reste négatif après contrôle de l'investissement, de la démographie et du capital humain, et il est plus fort en valeur absolue que le coefficient absolu sur le même sous-échantillon & Coefficient non négatif, ou plus faible en valeur absolue. \textbf{Non testée} si les trois covariables ne passent pas les seuils (<<~Données et accès~>>, gestion des trous et seuils) \\
+			\addlinespace
+			H4 (groupes) & La vitesse de convergence diffère entre UEMOA et hors UEMOA & Terme d'interaction non distinguable de zéro (test de permutation) \\
+			\addlinespace
+			H5 (panel) & Convergence présente avec effets fixes, après traitement du biais de Nickell, et vitesse différente selon le groupe & Verdict <<~non établie~>> ou <<~divergence~>> selon la règle de la section~\ref{sec:verdict-panel} \\
+			\bottomrule
+		\end{tabularx}
+	\end{center}
+	
+	H4 est \textbf{bilatérale} : on ne parie pas sur le sens. Stabilité monétaire et marché commun plaident pour une convergence plus rapide dans l'UEMOA ; l'enclavement et la fragilité institutionnelle de plusieurs membres plaident contre.
+	
+	\textbf{Règle de verdict générale.} Si le signe du coefficient principal (\bet) \textbf{ou du terme d'interaction de groupe} change dans un retrait de robustesse ou avec l'autre source de données, le résultat est déclaré <<~fragile~>>. On ne le rattrape pas. Un résultat <<~non distinguable de zéro~>> est un résultat valide. Le verdict détaillé du panel est en section~\ref{sec:verdict-panel}.
+	
+	%------------------------------------------------------------
+	\section{Échantillon}
+	
+	\begin{itemize}
+		\item \textbf{UEMOA (8)} : BEN, BFA, CIV, GNB, MLI, NER, SEN, TGO.
+		\item \textbf{Hors UEMOA (7)} : CPV, GMB, GHA, GIN, LBR, NGA, SLE.
+		\item Classification par \textbf{appartenance formelle} à l'UEMOA, pas par régime de change.
+		\item \textbf{Base en coupe (\sig, \bet)} : 14 pays, 7 contre 7. La Guinée-Bissau est exclue car son statut n'est pas constant sur la fenêtre (adhésion en 1997, de mémoire, à confirmer).
+		\item \textbf{Panel} : 15 pays, Guinée-Bissau avec appartenance \textbf{variable dans le temps} (hors UEMOA avant 1997, UEMOA après).
+		\item Mali, Burkina Faso, Niger : sortie de la CEDEAO en janvier 2025, après la période. Ils restent dans l'échantillon.
+		\item Cap-Vert et Liberia : simples non-membres de l'UEMOA, sans hypothèse monétaire séparée.
+		\item \textbf{Règles d'éligibilité} (jamais motivées par les résultats) : statut de groupe constant sur la fenêtre, et couverture conforme aux seuils de <<~Données et accès~>>. On n'exclut jamais un pays parce qu'il influence le résultat.
+	\end{itemize}
+	
+	%------------------------------------------------------------
+	\section{Sources et variables}
+	
+	Voir le document <<~Données et accès~>>, rubrique <<~Sources et variables~>> (sources, codes, justifications, limites).
+	
+	%------------------------------------------------------------
+	\section{Les quatre niveaux de travail}
+	
+	Les équations de chaque niveau sont dans \texttt{equations.md}.
+	
+	\subsection{Niveau 1 : \sig-convergence (\texttt{sigma-convergence.md})}
+	\begin{itemize}
+		\item Dispersion des revenus calculée chaque année, pour l'ensemble et par groupe (7 contre 7).
+		\item Échantillon identique chaque année (une composition qui change fait sauter la dispersion mécaniquement).
+		\item Tendance estimée avec erreurs robustes à l'autocorrélation (HAC), la dispersion d'une année à l'autre étant très corrélée.
+		\item Ne dit rien sur le rattrapage individuel : \sig{} peut stagner alors que les pays pauvres croissent plus vite (Quah, 1996).
+	\end{itemize}
+	
+	\subsection{Niveau 2 : \bet-convergence absolue (\texttt{beta-absolue.md})}
+	\begin{itemize}
+		\item Coupe de 14 pays. Revenu initial = moyenne des logs 1990--94 ; revenu final = moyenne des logs 2019--23.
+		\item \textbf{Durée retenue : $T = 29$ ans} (du milieu de la fenêtre initiale, 1992, au milieu de la fenêtre finale, 2021).
+		\item Attention : la dévaluation de 1994 tombe dans la fenêtre initiale. Elle est traitée en robustesse (fenêtre 1995--2023).
+		\item Estimée pour l'ensemble, puis comparaison des groupes par un terme d'interaction.
+		\item Inférence : \textbf{test de permutation} (3\,432 réattributions possibles) plutôt qu'erreurs-types asymptotiques, et \textbf{simulation de puissance} (quel écart de vitesse est détectable avec 7 contre 7).
+		\item Vitesse convertie en \,\% par an pour l'interprétation.
+	\end{itemize}
+	
+	\subsection{Niveau 3 : \bet-convergence conditionnelle (\texttt{beta-conditionnelle.md})}
+	\begin{itemize}
+		\item Même modèle plus investissement, démographie, capital humain.
+		\item \textbf{Modèle groupé, sans interaction de groupe} : avec l'interaction, le nombre de paramètres ferait toujours passer sous le plancher de degrés de liberté.
+		\item Sous-échantillon commun avec le niveau 2, pour que la comparaison soit valide.
+		\item \textbf{Abandonné si les trois covariables ne passent pas les seuils} : H3 est alors <<~non testée~>>. On ne baisse pas les seuils pour remplir le modèle.
+	\end{itemize}
+	
+	\subsection{Niveau 4 : panel à effets fixes (\texttt{panel.md})}
+	
+	\begin{encadre}
+		\textbf{Le panel complète la coupe, il ne la remplace pas. Sa conclusion sur la différence entre groupes est indicative.}
+	\end{encadre}
+	
+	Pourquoi : le panel contrôle mieux l'hétérogénéité entre pays que la coupe, mais il ajoute des périodes, pas des pays. On compare toujours 7 ou 8 pays contre 7 : le pouvoir statistique sur la différence entre groupes n'augmente presque pas. Les piliers du projet restent les niveaux 1 et 2.
+	
+	\begin{itemize}
+		\item \textbf{6 blocs de 5 ans : 1990--94, 1995--99, 2000--04, 2005--09, 2010--14, 2015--19.} Chaque bloc vaut la moyenne des logs sur ses années (au moins 3 années observées sur 5).
+		\item Six blocs donnent \textbf{5 intervalles de croissance} par pays (75 observations au maximum) : c'est le vrai nombre de périodes du panel. Le biais de Nickell est important, donc le traitement décrit en section~\ref{sec:verdict-panel} est obligatoire.
+		\item \textbf{Les blocs valides d'un pays doivent être consécutifs.} Un bloc manquant au milieu (guerre, effondrement) fait sortir le pays du panel pour la variable concernée, cohérent avec la règle <<~on perd le pays plutôt que d'interpoler~>>.
+		\item Effets fixes pays et période ; comparaison des groupes par l'interaction entre le revenu de départ du bloc et l'appartenance à l'UEMOA.
+		\item Les années \textbf{2020--2023 sont hors panel} (un bloc incomplet de 4 ans ; choc commun du COVID). Elles restent couvertes en coupe (fenêtre finale 2019--23). À écrire dans les limites.
+		\item Inférence : 15 clusters seulement, donc erreurs-types par pays peu fiables. Bootstrap adapté en complément. Test de dépendance transversale (les chocs UEMOA sont corrélés par construction).
+		\item \textbf{Panel annuel en robustesse} : le biais de Nickell s'y efface presque (beaucoup de périodes), mais on y capte surtout du cycle conjoncturel (rebonds après guerre ou crise) et de l'erreur de mesure. Il sert de contre-vérification.
+	\end{itemize}
+	
+	\subsection{Panel : variables cibles et règle de verdict}
+	\label{sec:verdict-panel}
+	
+	\textbf{Variables cibles.}
+	\begin{itemize}
+		\item \textbf{\boldmath\bet{} panel} : coefficient du logarithme du revenu de départ du bloc (moyenne des logs du bloc précédent) dans la régression de croissance du panel. Il est estimé de trois façons, rapportées côte à côte dans un seul tableau : MCO groupés avec effets période, effets fixes, et LSDVC. $\beta_{\text{panel}} < 0$ signifie que les pays plus pauvres en début de bloc croissent plus vite sur le bloc suivant.
+		\item \textbf{Vitesse annuelle} : conversion de $\beta_{\text{panel}}$ en \,\% par an (formule dans \texttt{equations.md}).
+		\item \textbf{\boldmath$\varphi$} : coefficient d'interaction entre le revenu de départ du bloc et l'appartenance à l'UEMOA. Il mesure la différence de vitesse entre groupes.
+	\end{itemize}
+	
+	\textbf{Lecture de la plage.} Avec peu de périodes, les MCO groupés sous-estiment la convergence et les effets fixes l'exagèrent (biais de Nickell). La valeur plausible de $\beta_{\text{panel}}$ se situe généralement entre $\beta_{\text{effets fixes}}$ (plus négatif) et $\beta_{\text{MCO}}$ (plus proche de zéro). C'est une \textbf{plage de plausibilité}, pas une estimation de la vraie valeur : elle peut être faussée par l'erreur de mesure ou par des chocs corrélés entre pays. On ne peut jamais savoir si la vraie valeur a été trouvée ; on peut seulement savoir si la méthode l'aurait trouvée dans un monde qui ressemble au nôtre (voir simulation).
+	
+	\textbf{Pré-requis : la simulation.} Avant d'utiliser LSDVC comme indicateur, on simule un panel au design identique (15 pays, 6 blocs, vitesses de 0, 1 et 3\,\% par an, hétérogénéité persistante entre pays, bruit calibré sur les données) et on estime MCO, effets fixes et LSDVC. LSDVC n'est retenu que si son erreur moyenne en simulation est inférieure à la moitié de la largeur de la plage MCO / effets fixes. Sinon, on ne rapporte que la plage, sans correction. L'implémentation retenue est validée sur ce test avant toute régression sur les vraies données.
+	
+	\textbf{Verdict sur \bet{} panel.}
+	
+	\begin{center}
+		\small
+		\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.6cm}X@{}}
+			\toprule
+			\textbf{Verdict} & \textbf{Conditions (toutes requises)} \\
+			\midrule
+			\textbf{Convergence établie} & (1) $\beta_{\text{MCO}}$ et $\beta_{\text{effets fixes}}$ tous deux négatifs, donc plage entièrement négative ; (2) LSDVC dans la plage ; (3) signe de LSDVC identique avec les trois estimateurs initiaux (Anderson--Hsiao, Arellano--Bond, Blundell--Bond) ; (4) intervalle bootstrap de LSDVC à 90\,\% qui exclut zéro \\
+			\addlinespace
+			\textbf{Convergence suggérée, fragile} & LSDVC négatif, mais une des conditions (2), (3) ou (4) échoue \\
+			\addlinespace
+			\textbf{Non établie} & La plage contient zéro, ou le signe de LSDVC change selon l'estimateur initial \\
+			\addlinespace
+			\textbf{Divergence} & Plage entièrement positive \\
+			\bottomrule
+		\end{tabularx}
+	\end{center}
+	
+	<<~Non établie~>> est un résultat valide.
+	
+	\textbf{Verdict sur $\varphi$ (différence de vitesse entre groupes).} LSDVC suppose des régresseurs strictement exogènes ; un terme d'interaction construit avec le revenu retardé ne l'est pas (à vérifier dans la documentation de l'outil retenu). On n'applique donc pas LSDVC à $\varphi$ directement : on estime les deux groupes \textbf{séparément} (7 et 8 pays, avec la Guinée-Bissau en UEMOA à partir de 1997).
+	\begin{itemize}
+		\item \textbf{Différence établie} : même signe de $\varphi$ avec MCO, effets fixes, LSDVC par groupe et panel annuel, \textbf{et} test de permutation en coupe avec $p < 0{,}10$.
+		\item \textbf{Non distinguable} : dans tout autre cas.
+		\item Avec 7 ou 8 pays par groupe, LSDVC par groupe est une indication, pas une preuve. On l'écrit.
+	\end{itemize}
+	
+	\textbf{Articulation avec la coupe.} Si la coupe donne $\beta < 0$ mais que le panel reste <<~non établi~>>, on rapporte les deux : la coupe n'a pas de biais de Nickell mais ne contrôle pas l'hétérogénéité des pays ; le panel contrôle l'hétérogénéité mais manque de périodes.
+	
+	\textbf{Attente réaliste (écrite avant les résultats).} Pour $\beta_{\text{panel}}$, un verdict <<~convergence suggérée, fragile~>> ou <<~non établie~>> est plausible. Pour $\varphi$, <<~non distinguable~>> est le résultat le plus probable. Ce n'est pas un échec : c'est ce que 15 pays et 5 intervalles permettent de défendre.
+	
+	%------------------------------------------------------------
+	\section{Gestion des trous et seuils}
+	
+	Voir le document <<~Données et accès~>>, rubrique <<~Gestion des trous et seuils~>> (seuils de départ, parades, guide du responsable des données). Les valeurs gelées sont consignées dans \texttt{Data.md}, pas ici. Ordre non négociable : collecte, heatmap de complétude, gel des seuils, puis régressions.
+	
+	%------------------------------------------------------------
+	\section{Robustesse (liste fixée à l'avance)}
+	
+	\begin{enumerate}
+		\item Sans le Nigeria.
+		\item Sans le Ghana.
+		\item Sans le Nigeria ni le Ghana.
+		\item Sans la Sierra Leone ni le Liberia (post-guerre).
+		\item Sans le Cap-Vert (état insulaire).
+		\item Fenêtre 1998--2023 à 15 pays (revenu initial 1998--2002 ; la guerre civile en Guinée-Bissau en 1998--99 est à surveiller).
+		\item Fenêtre post-dévaluation 1995--2023 (revenu initial 1995--99). Le test <<~avant 1994~>> est abandonné : 1990--93 ne couvre que 4 ans.
+		\item Source PWT 11 à la place de WDI.
+		\item Retrait un à un des 14 pays (15 en panel).
+		\item Panel annuel.
+		\item Seuils de <<~Données et accès~>> à $\pm 1$ cran ; interpolation testée à 0, 1 et 2 années consécutives (jamais en base).
+	\end{enumerate}
+	
+	Les planchers de $N$ de <<~Données et accès~>> s'appliquent à la \textbf{base} ; en robustesse, les résultats sont descriptifs.
+	
+	%------------------------------------------------------------
+	\section{Limites à écrire dans le rapport}
+	
+	\begin{itemize}
+		\item $N$ très petit en coupe (12 à 14 pays) : estimations indicatives.
+		\item Biais de sélection : les données manquent justement quand l'État s'effondre. La liste des pays perdus par variable borne ce biais, elle ne le corrige pas.
+		\item Différence entre groupes $\neq$ effet causal de l'UEMOA.
+		\item Niveaux WDI et PWT différents attendus (rondes de PPA distinctes) ; ce n'est pas une erreur.
+		\item Panel court : 5 intervalles de croissance par pays, biais de Nickell traité mais non éliminé, années 2020--23 hors panel, conclusion sur la différence entre groupes indicative.
+		\item La plage MCO / effets fixes est une plage de plausibilité, pas une estimation de la vraie valeur.
+		\item Capital humain largement interpolé.
+		\item La moyenne des logs sur 1990--94 inclut la dévaluation de 1994 ; la fenêtre 1995--2023 sert de contre-test.
+	\end{itemize}
+	
+	%------------------------------------------------------------
+	\section{Organisation}
+	
+	\begin{itemize}
+		\item \texttt{Data.md} : relate tout ce qui s'est passé côté données et accès (collecte, lecture de la heatmap, gel des seuils, pays perdus par variable, anomalies, corrections, amendements sur les données).
+		\item \texttt{equations.md} : toutes les équations (dont la conversion de \bet{} panel en vitesse annuelle), avec signe et ordre de grandeur attendus avant chaque régression.
+		\item Un \texttt{.md} de résultats par niveau.
+		\item CSV, graphiques et codes (R, Python) sur GitHub. Prompts de génération de code versionnés à côté du code.
+		\item Le \LaTeX{} est produit en dernier.
+	\end{itemize}
+	
+\end{document}

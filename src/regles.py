@@ -190,5 +190,12 @@ def consigner(titre, lignes, statut=None):
     corps = lignes if isinstance(lignes, str) else "\n".join(lignes)
     corps = corps.replace("\n## ", "\n### ")                     # pas de titres de niveau 2 dans le corps
     tete = f"\n\n## {titre} — {dt.date.today().isoformat()}" + (f" [{statut}]" if statut else "")
-    with open(C.DATA_MD, "a", encoding="utf-8") as f:
-        f.write(tete + "\n\n" + corps + "\n")
+    import time
+    for _ in range(6):                                              # OneDrive verrouille parfois le fichier quelques secondes
+        try:
+            with open(C.DATA_MD, "a", encoding="utf-8") as f:
+                f.write(tete + "\n\n" + corps + "\n")
+            return
+        except PermissionError:
+            time.sleep(2)
+    raise SystemExit("Data.md est VERROUILLÉ (ouvert ailleurs ou synchronisé par OneDrive). Ferme-le puis relance la même commande.")

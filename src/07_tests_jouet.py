@@ -60,3 +60,5 @@ if __name__ == "__main__":
     for nom, f in tests:
         f(); print(f"OK  {nom}")
     print("Les 3 tests passent.")
+    R.consigner("TESTS SUR JOUET (étape 7)", [f"- OK : {nom}" for nom, _ in tests]
+                + ["- ces tests doivent être lancés AVANT les vraies données : l'ordre se lit par les dates des sections de ce journal"])

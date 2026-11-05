@@ -1,0 +1,437 @@
+% !TeX program = xelatex
+\documentclass[21pt,a4paper]{article}
+
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Termes}
+\setmonofont{TeX Gyre Cursor}
+\usepackage[french]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage[most]{tcolorbox}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.7em}
+\setlist{itemsep=0.2em,topsep=0.3em}
+
+% Lettres grecques utilisables dans le texte et les titres
+\newcommand{\sig}{\texorpdfstring{$\sigma$}{sigma}}
+\newcommand{\bet}{\texorpdfstring{$\beta$}{beta}}
+
+% Colonnes à retour à la ligne, alignées à gauche
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\newtcolorbox{encadre}{
+	enhanced, breakable,
+	colback=blue!4, colframe=blue!50!black,
+	boxrule=0pt, leftrule=3pt, arc=0pt,
+	left=10pt, right=10pt, top=6pt, bottom=6pt
+}
+
+\title{\textbf{Données et accès}}
+\author{}
+\date{}
+
+\begin{document}
+	\maketitle
+	
+	\begin{encadre}
+		\textbf{Où vivent les chiffres.} Les seuils de départ sont écrits dans ce document (rubrique~\ref{sec:trous}). Les valeurs \textbf{gelées} (seuils finaux, pays perdus, $N$ par groupe) sont consignées dans \texttt{Data.md}, qui relate tout ce qui s'est passé côté données. Le \texttt{Summary.md} ne contient aucun seuil de données.
+	\end{encadre}
+	
+	%------------------------------------------------------------
+	\section{Rôle de la heatmap}
+	
+	La heatmap est un \textbf{outil de diagnostic de complétude}. Elle montre, pour chaque pays, chaque variable et chaque année, si la donnée existe. Elle sert à \textbf{une seule chose} : fournir la base factuelle pour geler les seuils (rubrique~\ref{sec:trous}) avant toute régression.
+	
+	\textbf{Ce qu'elle fait}
+	\begin{itemize}
+		\item Montre les trous : début ou fin de série manquants, années internes absentes, pays ou variable entièrement absents.
+		\item Permet de dire quels pays sont éligibles à quel niveau de modèle.
+		\item Compare la couverture de WDI et de PWT.
+	\end{itemize}
+	
+	\textbf{Ce qu'elle ne fait pas}
+	\begin{itemize}
+		\item Elle ne regarde jamais les valeurs économiques (croissance, niveau de revenu, \sig, \bet). On regarde si la donnée existe, pas ce qu'elle dit.
+		\item Elle ne sert pas à choisir des pays pour obtenir un résultat.
+		\item Elle ne détecte pas les ruptures de niveau ni les désaccords entre sources : c'est le rôle de l'étape~6 du nettoyage.
+	\end{itemize}
+	
+	Elle est produite sur les \textbf{données brutes}, après le seul filtre sur la liste ISO3, avant toute transformation.
+	
+	%------------------------------------------------------------
+	\section{Échantillon}
+	
+	Codes ISO3, 15 pays.
+	
+	\begin{itemize}
+		\item \textbf{UEMOA (8)} : BEN, BFA, CIV, GNB, MLI, NER, SEN, TGO
+		\item \textbf{Hors UEMOA (7)} : CPV, GMB, GHA, GIN, LBR, NGA, SLE
+	\end{itemize}
+	
+	\textbf{Règle de classification.} Le groupe est défini par l'\textbf{appartenance formelle} à l'UEMOA, pas par le régime de change. La classification doit être constante sur la fenêtre.
+	
+	\begin{itemize}
+		\item \textbf{Base en coupe (\sig{} et \bet)} : la Guinée-Bissau (adhésion en 1997, à confirmer) échoue au critère de statut constant sur 1990--2023. Exclue de la base : \textbf{14 pays} (7 contre 7).
+		\item \textbf{Panel} : Guinée-Bissau réintégrée avec une appartenance \textbf{variable dans le temps} : \textbf{15 pays}.
+		\item \textbf{Robustesse} : fenêtre 1998--2023 à 15 pays, avec revenu initial moyenné sur plusieurs années.
+		\item Le Mali, le Burkina Faso et le Niger ont quitté formellement la CEDEAO le 29 janvier 2025. La période s'arrête en 2023 : ils restent dans l'échantillon (à écrire dans l'introduction).
+		\item Le Cap-Vert et le Liberia sont de simples non-membres : pas d'hypothèse séparée <<~change arrimé~>>. Mécanismes monétaires en discussion uniquement.
+	\end{itemize}
+	
+	%------------------------------------------------------------
+	\section{Sources et variables}
+	
+	\begin{center}
+		\small
+		\begin{tabularx}{\textwidth}{@{}L{3.4cm}L{3.4cm}Y@{}}
+			\toprule
+			\textbf{Source} & \textbf{Rôle} & \textbf{Justification} \\
+			\midrule
+			\textbf{WDI} (Banque mondiale) & Principale & API reproductible ; PIB et covariables dans le même appel ; PPA constante 2021 \\
+			\addlinespace
+			\textbf{PWT 11} (Groningen) & Robustesse, et capital humain & Construction indépendante de WDI ; fournit le capital humain, absent de WDI sous forme comparable \\
+			\bottomrule
+		\end{tabularx}
+	\end{center}
+	
+	Le capital humain vient de PWT : \textbf{il y a donc une fusion entre sources}, sur le code ISO3 uniquement, jamais sur le nom. PWT est un fichier Excel ou Stata téléchargé à la main ; WDI s'obtient par API. WDI et PWT reposent sur des rondes de PPA différentes : une différence de \textbf{niveau} est attendue et ne prouve aucune erreur.
+	
+	\begin{center}
+		\small
+		\begin{tabularx}{\textwidth}{@{}L{4cm}L{5.3cm}Y@{}}
+			\toprule
+			\textbf{Variable} & \textbf{Code} & \textbf{Rôle} \\
+			\midrule
+			PIB/hab., PPA constante 2021 & WDI \texttt{NY.GDP.PCAP.PP.KD} & Variable centrale \\
+			\addlinespace
+			Investissement (\% PIB) & WDI \texttt{NE.GDI.FTOT.ZS} [à confirmer] & Épargne / accumulation du capital \\
+			\addlinespace
+			Croissance de la population & WDI \texttt{SP.POP.GROW} & Démographie (avec une constante de 0,05 pour croissance technique et dépréciation) \\
+			\addlinespace
+			Capital humain & PWT \texttt{hc} & Éducation \\
+			\addlinespace
+			Ouverture commerciale & WDI \texttt{NE.TRD.GNFS.ZS} & Extension, hors cœur \\
+			\addlinespace
+			Revenu de contrôle & PWT \texttt{rgdpo} (niveaux), \texttt{rgdpna} (dynamique) & Robustesse \\
+			\bottomrule
+		\end{tabularx}
+	\end{center}
+	
+	Les noms exacts des variables PWT 11 sont à lire dans le fichier lui-même. PWT distingue \texttt{rgdpo} (comparaisons de niveaux entre pays, donc \sig{} et revenu initial) et \texttt{rgdpna} (dynamique d'un pays dans le temps). Aucune série n'est parfaite pour tout.
+	
+	\textbf{Pourquoi la PPA constante.} La dévaluation de 50\,\% du franc CFA en janvier 1994 (de mémoire) tombe dans l'échantillon. En dollars nominaux, elle créerait une divergence artificielle de l'UEMOA. La version constante supprime aussi l'inflation.
+	
+	\textbf{Pourquoi par habitant.} La convergence est une question de niveau de vie. Limite : la théorie raisonne par travailleur, mais les données d'emploi de la région sont de mauvaise qualité.
+	
+	\textbf{Pourquoi la démographie.} Une population qui croît vite dilue le capital par tête et abaisse le niveau de long terme. Sans ce terme, la convergence <<~conditionnelle~>> ne conditionne pas sur ce qui différencie les pays. Limite : la croissance démographique de WDI inclut la migration, ce qui brouille le cas du Cap-Vert.
+	
+	\textbf{Pourquoi la fenêtre 1990--2023.} Intersection des deux sources, non libre. Le début de la série WDI en 1990 est à confirmer pour le PIB. Le \textbf{panel} couvre 1990--2019 (six blocs de 5 ans) ; 2020--23 reste couvert par la coupe.
+	
+	\textbf{Limite sur le capital humain.} Largement interpolé à partir de données d'éducation éparses : une couverture de 100\,\% ne signifie pas une mesure complète.
+	
+	%------------------------------------------------------------
+	\section{Gestion des trous et seuils}
+	\label{sec:trous}
+	
+	\subsection{Calendrier (non négociable)}
+	
+	\begin{enumerate}
+		\item \textbf{Commit 1} : hypothèses et spécification gelées (\texttt{Summary.md}), avant les données.
+		\item Collecte brute, puis heatmap de complétude pays $\times$ variable $\times$ année et fiche de lecture (rubrique~\ref{sec:nettoyage}, étape~3).
+		\item \textbf{Commit 2} : seuils gelés, consignés dans \texttt{Data.md}.
+		\item Seulement ensuite, première régression.
+	\end{enumerate}
+	
+	Après le commit 2, toute modification d'une règle de données est un \textbf{amendement daté} dans \texttt{Data.md}, jamais une retouche silencieuse.
+	
+	\subsection{Seuils de départ}
+	\label{sec:seuils-depart}
+	
+	Ces seuils sont des \textbf{valeurs de départ}, arbitraires ; ils valent par leur cohérence et parce qu'ils sont figés avant les régressions. Par défaut, on les gèle \textbf{tels quels}. On peut les tester à $\pm 1$ cran \textbf{en robustesse}, jamais en base.
+	
+	\begin{center}
+		\small
+		\begin{tabularx}{\textwidth}{@{}L{4.4cm}Y@{}}
+			\toprule
+			\textbf{Critère} & \textbf{Valeur de départ} \\
+			\midrule
+			Plancher de $N$ (base) & $N \geq 12$, et $\geq 5$ pays par groupe \\
+			\addlinespace
+			Degrés de liberté résiduels & $N - k \geq 8$, $k$ = nombre de paramètres estimés, constante comprise \\
+			\addlinespace
+			Couverture PIB/hab. & $\geq 31$ années sur 34 ; trous internes $\leq 2$ années consécutives ; $\geq 3$ années sur 5 en début (1990--94) et en fin (2019--23) \\
+			\addlinespace
+			Couverture covariable & $\geq 27$ années sur 34 (80\,\%) par pays \\
+			\addlinespace
+			Panel : couverture & $\geq 12$ pays ; $\geq 5$ blocs valides sur 6 par pays, \textbf{consécutifs} ; bloc valide = $\geq 3$ années sur 5 \\
+			\addlinespace
+			Alerte de rupture de niveau & variation annuelle du log du PIB/hab. $> 0{,}15$ \\
+			\addlinespace
+			Pays dominant (indicatif) & part $> 30\,\%$ du PIB du groupe \\
+			\bottomrule
+		\end{tabularx}
+	\end{center}
+	
+	Les seuils de \textbf{verdict statistique} (intervalle bootstrap, seuil du test de permutation, critère de retenue de LSDVC) sont écrits dans le \texttt{Summary.md}, rubrique 7.5 ; leur gel est consigné dans \texttt{Data.md} en même temps que les autres.
+	
+	Nombre de paramètres selon le modèle (rappel) : le modèle conditionnel groupé a 2 paramètres de base plus le nombre de covariables. À $N = 14$, trois covariables passent (9 degrés de liberté) ; à $N = 13$, limite (8) ; à $N = 12$, le modèle conditionnel est abandonné.
+	
+	\subsection{Trous, parades et ce qu'il faut consigner}
+	\label{sec:trous-parades}
+	
+	Tous les seuils chiffrés renvoient à la rubrique~\ref{sec:seuils-depart}.
+	
+	{\footnotesize
+		\begin{longtable}{@{}L{2.5cm}L{3.3cm}L{6.2cm}L{3.2cm}@{}}
+			\toprule
+			\textbf{Trou} & \textbf{Détection} & \textbf{Parade retenue} & \textbf{À consigner dans \texttt{Data.md}} \\
+			\midrule
+			\endfirsthead
+			\toprule
+			\textbf{Trou} & \textbf{Détection} & \textbf{Parade retenue} & \textbf{À consigner dans \texttt{Data.md}} \\
+			\midrule
+			\endhead
+			\midrule
+			\multicolumn{4}{r}{\textit{Suite page suivante}} \\
+			\endfoot
+			\bottomrule
+			\endlastfoot
+			Début ou fin de série manquants (LBR, SLE, GNB) & Première et dernière année non vides par pays $\times$ variable ; couverture sous le seuil PIB & Le pays sort de \sig{} et \bet{} de base (fenêtre commune, durée identique pour tous, pas d'interpolation). Retour possible en robustesse via PWT. & Pays, variable, années manquantes, règle déclenchée \\
+			\addlinespace
+			Années isolées manquantes & Suites de NA internes & Aucune interpolation en base. En robustesse seulement : $\leq 2$ années consécutives, en logs, testé à 0, 1 et 2 années. & Pays, variable, années des trous \\
+			\addlinespace
+			Ruptures de niveau (rebasage ou choc réel) & Alerte de rupture (rubrique~\ref{sec:seuils-depart}) & Test croisé WDI/PWT. Présente dans les deux sources : réelle, conservée. Dans une seule : artefact, signalé, estimation avec et sans. Jamais de correction manuelle. & Pays, année, ampleur, présente dans quelle(s) source(s), classement \\
+			\addlinespace
+			Désaccord entre sources & Moyennes sur 5 ans, classement des pays (corrélation de rang), signe du coefficient principal et de l'interaction de groupe & Une source en principal, l'autre en robustesse. Signe différent : résultat déclaré <<~fragile~>>. & Pays concernés, nature du désaccord \\
+			\addlinespace
+			Covariable absente & Couverture par pays sous le seuil covariable & Le pays est perdu pour cette covariable seulement. Le modèle absolu est réestimé sur le même sous-échantillon. Si le plancher de degrés de liberté n'est plus respecté, la covariable passe en extension. Si les trois covariables ne passent pas, le modèle conditionnel est abandonné (H3 <<~non testée~>>). & Pays perdus par covariable, $N$ restant, degrés de liberté \\
+			\addlinespace
+			Agrégats dans WDI & Codes pays = liste ISO3 exacte, via contrôle bloquant & Filtrage strict par liste, pas <<~exclure les agrégats~>>. & Résultat du contrôle \\
+			\addlinespace
+			Pays dominants & Part du PIB du groupe ; levier, DFBETAs, distance de Cook & MCO non pondérée en base. Retrait un par un en robustesse, retraits groupés prédéfinis (Liberia + Sierra Leone ; Cap-Vert). Version pondérée par la population en extension. & Pays repérés (sans les exclure de la base) \\
+			\addlinespace
+			Traçabilité & Date et version du téléchargement & Stockées dans \texttt{data/raw/} (WDI est révisé régulièrement). & Date, version, source \\
+		\end{longtable}
+	}
+	
+	\subsection{Trois règles transversales}
+	
+	\begin{enumerate}
+		\item \textbf{Ordre} : heatmap, gel des seuils, régressions.
+		\item \textbf{Interdiction} : on n'exclut jamais un pays de la base parce qu'il influence le résultat.
+		\item \textbf{Verdict} : si le signe du coefficient principal ou de l'interaction de groupe change dans un retrait ou avec l'autre source, on écrit <<~fragile~>> et on ne rattrape pas.
+	\end{enumerate}
+	
+	\subsection{Limite à écrire dans le rapport}
+	
+	Les données manquent justement quand l'État s'effondre (guerres, coups d'État). Perdre un pays pour une variable ne corrige pas ce biais de sélection, il le \textbf{borne} : liste des pays perdus publiée par variable, PWT comme source de contrôle, limite explicitée.
+	
+	\subsection{Guide du responsable des données}
+	\label{sec:guide}
+	
+	La personne chargée de cette partie \textbf{applique} les règles, elle ne les invente pas. Elle est la seule à toucher aux seuils, et uniquement dans l'ordre ci-dessous.
+	
+	\begin{enumerate}
+		\item \textbf{Avant de commencer} : vérifier que le commit 1 (hypothèses gelées) existe et lire les rubriques 1, 2 et 4 de ce document.
+		\item \textbf{Produire} la heatmap et la fiche de lecture (rubrique~\ref{sec:nettoyage}, étape~3). Ne regarder aucune valeur économique.
+		\item \textbf{Appliquer les valeurs de départ} : pour chaque pays $\times$ variable, marquer si chaque critère est passé ou échoué. Pour chaque échec, appliquer la parade du tableau de la rubrique~\ref{sec:trous-parades}, sans choix discrétionnaire.
+		\item \textbf{Cas non prévu} : si une situation n'est pas dans le tableau, ne pas improviser. La consigner dans \texttt{Data.md} (<<~cas non prévu~>> : description, option envisagée), la faire valider par une seconde personne, puis l'appliquer.
+		\item \textbf{Geler} : écrire dans \texttt{Data.md} l'entrée de gel (format ci-dessous), faire le commit 2.
+		\item \textbf{Transmettre aux modélisateurs} : listes de pays éligibles par variable et par niveau, $N$ total et par groupe, degrés de liberté, covariables qui passent, niveaux réalisables (par exemple <<~conditionnel abandonné~>>).
+		\item \textbf{Après le gel} : tout changement est un amendement daté dans \texttt{Data.md}. Si quelqu'un demande de modifier un seuil après avoir vu un résultat, la réponse est non. Un amendement n'est admis que pour un fait nouveau sur les données (erreur de téléchargement, source corrigée), avec date, motif et validation d'une seconde personne.
+	\end{enumerate}
+	
+	\textbf{À remonter à l'équipe avant de continuer} :
+	\begin{itemize}
+		\item $N < 12$, ou moins de 5 pays dans un groupe ;
+		\item panel sous 12 pays ;
+		\item une année absente pour tous les pays ;
+		\item un pays absent d'une source entière.
+	\end{itemize}
+	
+	\textbf{Ce qui ne se fait jamais} : interpoler en base, corriger une rupture à la main, exclure un pays parce qu'il influence le résultat, ajuster un seuil après avoir vu un résultat.
+	
+	\textbf{Format de l'entrée de gel dans \texttt{Data.md}} : date ; hash du commit 2 ; seuils finaux (avec mention de tout écart par rapport aux valeurs de départ et son motif) ; pays perdus par variable avec la règle déclenchée ; $N$ total et $N$ par groupe, en coupe et en panel ; degrés de liberté et covariables retenues ; pays frontière (à un cran d'un seuil) ; nom de la personne qui a validé.
+	
+	%------------------------------------------------------------
+	\section{Nettoyage des données (R ou Python)}
+	\label{sec:nettoyage}
+	
+	\subsection{Principes}
+	
+	\begin{itemize}
+		\item \textbf{\texttt{raw/} n'est jamais modifié.} Tout traitement est un script qui lit \texttt{raw/} et écrit dans \texttt{processed/}. Aucune retouche manuelle dans Excel.
+		\item \textbf{Marquer plutôt que supprimer.} À chaque étape, on ajoute des colonnes-drapeaux (observé, éligible, rupture) au lieu d'effacer des lignes. On peut ainsi relancer avec d'autres seuils.
+		\item \textbf{Format long, une ligne par pays $\times$ année $\times$ variable.} C'est le format de la heatmap, des contrôles et des panels.
+		\item \textbf{Un script par étape, numéroté, relançable de bout en bout} (\texttt{01\_collecte}, \texttt{02\_filtrage}, \texttt{03\_completude}, \texttt{04\_eligibilite}, \texttt{05\_variables}, \texttt{06\_ruptures}). Une seule commande reconstruit tout.
+		\item \textbf{Chaque contrôle est bloquant} : le script s'arrête plutôt que de continuer avec une erreur silencieuse.
+		\item \textbf{Chaque exclusion est écrite automatiquement} dans un journal (pays, variable, règle déclenchée), repris dans \texttt{Data.md}. On ne reconstruit jamais cette liste de mémoire.
+		\item \textbf{Versions figées} des bibliothèques, date de téléchargement dans les métadonnées.
+	\end{itemize}
+	
+	\subsection{Contenu de \texttt{raw/} et de \texttt{processed/}}
+	
+	\textbf{Règle.} \texttt{raw/} contient ce qui a été \textbf{téléchargé}. \texttt{processed/} contient tout ce qu'un script peut \textbf{reconstruire} à partir de \texttt{raw/}. Si un fichier peut être supprimé et régénéré par une seule commande, il va dans \texttt{processed/}.
+	
+	\textbf{Dans \texttt{raw/} (jamais modifié)}
+	\begin{itemize}
+		\item Le téléchargement WDI tel quel : tous les indicateurs demandés, les 15 pays, 1990--2023, sans filtrage ni renommage de colonnes.
+		\item Le fichier PWT 11 avec son nom d'origine, et sa documentation si elle est fournie.
+		\item Un petit fichier de métadonnées par source : date du téléchargement, indicateurs demandés, version ou date de mise à jour indiquée par la source. Sans lui, un résultat n'est plus reproductible quand WDI est révisé.
+	\end{itemize}
+	
+	\textbf{Dans \texttt{processed/} (régénérable)}
+	\begin{itemize}
+		\item Les tables filtrées sur les 15 codes ISO3, en format long, après les contrôles de l'étape~2.
+		\item La table de complétude qui alimente la heatmap (étape~3).
+		\item Les drapeaux d'éligibilité et le journal des pays perdus par variable (étape~4).
+		\item Les variables construites : log du PIB/hab., moyennes 1990--94 et 2019--23, six blocs de 5 ans, croissances, covariables (étape~5).
+		\item Les drapeaux de rupture et la comparaison WDI/PWT (étape~6).
+	\end{itemize}
+	
+	\textbf{Ni dans \texttt{raw/} ni dans \texttt{processed/}}
+	\begin{itemize}
+		\item La figure de la heatmap et les tableaux de résultats : \texttt{Results/Graphs} et \texttt{Results/Tables}.
+		\item La fiche de lecture de la heatmap et l'entrée de gel : \texttt{Data.md}.
+		\item Les paramètres saisis par l'équipe (seuils gelés, liste des pays, fenêtres, liste des groupes avec la date d'adhésion de la Guinée-Bissau) : un fichier de configuration dans \texttt{src/}. Ce sont des décisions, pas des données téléchargées.
+	\end{itemize}
+	
+	\textbf{Amendements à la structure du dépôt}
+	\begin{itemize}
+		\item La description de \texttt{processed/} devient <<~séries nettoyées et variables construites~>> (la fiche d'origine parlait de <<~log returns~>>, ce qui ne correspond pas à ce projet).
+		\item \texttt{raw/} est versionné dans le dépôt, même si WDI semble pouvoir être retéléchargé : la base est révisée régulièrement et un nouveau téléchargement ne redonne pas forcément les mêmes valeurs.
+		\item Une erreur détectée dans \texttt{raw/} (mauvais indicateur, mauvaise période) ne se corrige jamais à la main : on retélécharge, on remplace le fichier avec une nouvelle date, et on consigne le changement comme amendement daté dans \texttt{Data.md}.
+	\end{itemize}
+	
+	\subsection{Étapes}
+	\label{sec:etapes}
+	
+	\textbf{Étape 1. Collecte brute (\texttt{01\_collecte}).}\\
+	Télécharger WDI pour la liste ISO3 exacte, enregistrer tel quel avec date et version. PWT : fichier téléchargé à la main, copié dans \texttt{raw/} avec son nom d'origine. Lire d'abord les noms exacts des variables PWT dans le fichier.
+	
+	\textbf{Étape 2. Filtrage strict par liste (\texttt{02\_filtrage}).}\\
+	Garder uniquement les 15 codes ISO3. Ne jamais <<~exclure les agrégats~>> : on \textbf{inclut} une liste fermée. Contrôles bloquants :
+	\begin{itemize}
+		\item exactement 15 codes uniques ;
+		\item 34 années par pays ($15 \times 34 = 510$ au total, mais vérifier \textbf{par pays}) ;
+		\item zéro doublon pays-année ;
+		\item tous les pays de PWT retrouvés par le même code ISO3 que WDI (fusion sur le code, jamais sur le nom).
+	\end{itemize}
+	
+	\textbf{Étape 3. Complétude, heatmap et lecture (\texttt{03\_completude}).}
+	
+	\textit{Production.} Calculer, par pays $\times$ variable : première année non vide, dernière année non vide, nombre d'années observées, plus longue suite de NA internes, années des trous, nombre de blocs de 5 ans valides (au moins 3 années sur 5). Produire la heatmap : pays en lignes, années en colonnes, une facette par variable, la source indiquée, trois états (observé, manquant, hors source), sans aucune valeur économique.
+	
+	\textit{Comment lire la heatmap (dans cet ordre).}
+	\begin{enumerate}
+		\item \textbf{Vue d'ensemble.} Une bande verticale (une année absente pour tous les pays) pointe vers un problème de source ou de publication, pas vers un pays. Une bande horizontale (un pays absent pour toute une variable) pointe vers un pays.
+		\item \textbf{Les bords.} Pour chaque pays, repérer le premier et le dernier carré observés. Les trous au début ou à la fin sont les plus graves : ils empêchent la fenêtre commune (initiale 1990--94, finale 2019--23).
+		\item \textbf{Les trous internes.} Noter leur longueur ($\leq 2$ années consécutives ou plus) et leur position. Noter aussi si leur position coïncide avec un conflit ou un effondrement : l'observation sert à la limite de biais de sélection, jamais à interpoler.
+		\item \textbf{Les blocs de 5 ans.} Pour chaque pays, combien des six blocs sont valides, et s'ils sont consécutifs.
+		\item \textbf{WDI contre PWT.} Repérer ce qu'une source couvre et que l'autre ne couvre pas : cela alimente la robustesse.
+		\item \textbf{Les covariables.} Lire la couverture covariable par covariable et par pays, jamais en pourcentage global.
+	\end{enumerate}
+	
+	\textit{Ce qu'il faut notifier (fiche de lecture, dans \texttt{Data.md}).} Un tableau avec, par pays $\times$ variable $\times$ source : première année, dernière année, années observées sur 34, plus longue suite de NA internes, années des trous, blocs valides sur 6 (consécutifs oui ou non), critères de départ passés ou échoués. Puis une synthèse :
+	\begin{itemize}
+		\item pays éligibles par variable et par niveau (\sig{} et \bet{} en coupe, conditionnel, panel) ;
+		\item $N$ total et $N$ par groupe, degrés de liberté possibles, nombre de covariables qui passent ;
+		\item \textbf{pays frontière} : à un cran d'un seuil. Ils alimentent la robustesse à $\pm 1$ cran ;
+		\item anomalies systémiques : une année absente pour tous, une variable absente d'une source ;
+		\item constats sur la coïncidence trous / conflits, pour la limite de biais de sélection.
+	\end{itemize}
+	
+	\textit{Conclusion pour l'étape 4.} Si la synthèse ne déclenche aucune alerte de la rubrique~\ref{sec:guide}, les valeurs de départ sont gelées \textbf{telles quelles}. Un ajustement n'est admis que s'il est \textbf{mécanique} et justifié par la structure de la complétude (par exemple une année absente pour tous les pays qui rend un critère impossible), jamais pour inclure ou écarter un pays nommé. Il est consigné avec son motif et validé par une seconde personne. Si une alerte se déclenche ($N$ trop bas, groupe sous 5 pays), on remonte à l'équipe avant de continuer.
+	
+	\textit{Interdits pendant la lecture.} Regarder la valeur du PIB/hab. d'un pays pour décider de son sort ; choisir un seuil en observant quel pays il laisse passer.
+	
+	\textbf{Étape 4. Éligibilité et gel (\texttt{04\_eligibilite}).}\\
+	Remplir l'entrée de gel dans \texttt{Data.md} et faire le commit 2. Ensuite seulement, le script applique les règles et produit les drapeaux d'éligibilité par pays et variable, plus le journal des pays perdus.
+	
+	\textbf{Étape 5. Construction des variables (\texttt{05\_variables}).}
+	\begin{itemize}
+		\item Logarithme du PIB/hab. PPA constant : vérifier que le log porte bien sur le \textbf{niveau} du PIB par habitant, pas sur une croissance ni un indice.
+		\item \textbf{Coupe} : revenu initial = moyenne des logs 1990--94 ; revenu final = moyenne des logs 2019--23 ; durée de 29 ans entre les milieux de fenêtres.
+		\item \textbf{Panel} : six blocs de 5 ans (1990--94, 1995--99, 2000--04, 2005--09, 2010--14, 2015--19). Chaque bloc = moyenne des logs sur ses années, valide si au moins 3 années sur 5 sont observées. Six blocs donnent \textbf{cinq intervalles de croissance} par pays. Le panel s'arrête en 2019. Les blocs valides d'un pays doivent être \textbf{consécutifs} : un bloc manquant au milieu fait sortir le pays du panel pour la variable concernée.
+		\item Covariables du modèle conditionnel si elles passent les seuils : investissement, croissance démographique, capital humain.
+	\end{itemize}
+	
+	\textbf{Étape 6. Ruptures et sources croisées (\texttt{06\_ruptures}).}\\
+	Repérer les alertes de rupture, comparer avec PWT, classer en <<~réelle~>> ou <<~artefact~>>. Comparer les moyennes sur 5 ans, le classement des pays et le signe du coefficient principal entre WDI et PWT.
+	
+	\textbf{Étape 7. Tests sur jouet (avant les vraies données).}
+	\begin{itemize}
+		\item \sig{} calculé à la main sur 3 pays (Excel) et comparé au résultat du script.
+		\item Données simulées avec une vitesse de convergence connue : l'estimateur la retrouve.
+		\item Données simulées avec un trou volontaire : le script le détecte et journalise le pays.
+	\end{itemize}
+	
+	\subsection{Outils pour les étapes 1 à 3 (collecte, contrôles, complétude, heatmap)}
+	
+	Ce sont des bibliothèques courantes ; vérifier leur disponibilité et figer les versions à l'installation.
+	
+	\begin{center}
+		\small
+		\begin{tabularx}{\textwidth}{@{}L{4.6cm}L{4.4cm}Y@{}}
+			\toprule
+			\textbf{Besoin} & \textbf{R} & \textbf{Python} \\
+			\midrule
+			Collecte WDI & \texttt{WDI} & \texttt{wbgapi} \\
+			\addlinespace
+			Lecture de PWT (Excel ou Stata) & \texttt{readxl}, \texttt{haven} & \texttt{pandas} (lecture Excel et Stata), \texttt{openpyxl} \\
+			\addlinespace
+			Manipulation, format long, grille pays $\times$ année & \texttt{dplyr}, \texttt{tidyr} (\texttt{tidyverse}) & \texttt{pandas}, \texttt{numpy} \\
+			\addlinespace
+			Codes pays ISO3 & \texttt{countrycode} & \texttt{pycountry} ou \texttt{country\_converter} \\
+			\addlinespace
+			Contrôles (doublons, comptages) & \texttt{janitor}, \texttt{stopifnot} (base R) & \texttt{pandas} (doublons), \texttt{assert} ; \texttt{pandera} en option \\
+			\addlinespace
+			Diagnostic de valeurs manquantes & \texttt{naniar} & \texttt{missingno} en option \\
+			\addlinespace
+			Heatmap de complétude & \texttt{ggplot2} (\texttt{geom\_tile}) & \texttt{matplotlib}, \texttt{seaborn} (heatmap) \\
+			\bottomrule
+		\end{tabularx}
+	\end{center}
+	
+	\subsection{Comment le faire efficacement}
+	
+	\begin{center}
+		\small
+		\begin{tabularx}{\textwidth}{@{}L{7.2cm}Y@{}}
+			\toprule
+			\textbf{Bonne pratique} & \textbf{Pourquoi} \\
+			\midrule
+			Fonctions courtes, une par contrôle (codes, 34 observations par pays, complétude) & Chaque contrôle se teste seul et se réutilise sur WDI et PWT \\
+			\addlinespace
+			Tout paramètre (seuils, fenêtre, liste de pays) dans un seul fichier de configuration lu depuis la rubrique~\ref{sec:seuils-depart}, puis depuis l'entrée de gel de \texttt{Data.md} & Changer un cran de robustesse sans toucher au code \\
+			\addlinespace
+			Sorties automatiques (tableaux, heatmap, journal) & Rien n'est refait à la main, tout est reproductible \\
+			\addlinespace
+			Lecture à voix haute de chaque bloc par une personne autre que l'auteur & Garde-fou du Quant Lab : sinon le bloc n'est pas validé \\
+			\addlinespace
+			Prompts de génération de code versionnés à côté du code & Garde-fou du Quant Lab \\
+			\addlinespace
+			Premier passage sur 3 pays, puis sur les 15 & Les erreurs de fusion apparaissent sur un petit jeu \\
+			\bottomrule
+		\end{tabularx}
+	\end{center}
+	
+	\subsection{Contrôles de fin de chaîne}
+	
+	\begin{itemize}
+		\item Nombre de lignes cohérent avec l'échantillon retenu ($15 \times 34 = 510$ en panel complet de départ, $14 \times 34 = 476$ en base en coupe).
+		\item Pour chaque pays exclu pour une variable : une ligne dans le journal et dans \texttt{Data.md}, avec la règle déclenchée.
+		\item Les statistiques descriptives du PIB/hab. (min, max par pays) sont lues une fois à la main, \textbf{après} le gel des seuils, pour repérer une unité aberrante ou une ligne d'agrégat glissée.
+	\end{itemize}
+	
+\end{document}

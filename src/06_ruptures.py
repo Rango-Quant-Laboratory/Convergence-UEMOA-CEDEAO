@@ -33,6 +33,8 @@ def ruptures():
     a.to_csv(C.PROC / "ruptures.csv", index=False)
     print(f"\n[1] Alertes de rupture (seuil {C.SEUILS['rupture_dlog']}) : {len(a)}")
     print(a.to_string(index=False) if len(a) else "aucune")
+    return [f"### Alertes de rupture (seuil {C.SEUILS['rupture_dlog']}) : {len(a)} (pays, année, ampleur par source, classement)", "```",
+            a.to_string(index=False) if len(a) else "aucune", "```"]
 
 def comparer_blocs():
     bw, bp = pd.read_csv(C.PROC / "blocs_wdi.csv"), pd.read_csv(C.PROC / "blocs_pwt.csv")
@@ -44,6 +46,7 @@ def comparer_blocs():
     out = pd.DataFrame(rows); out.to_csv(C.PROC / "comparaison_blocs.csv", index=False)
     print("\n[2] Classement des pays WDI vs PWT (niveaux attendus différents : rondes PPA distinctes, ce n'est pas une erreur)")
     print(out.to_string(index=False))
+    return ["### Classement des pays WDI vs PWT (corrélation de rang des moyennes de bloc ; niveaux différents attendus)", "```", out.to_string(index=False), "```"]
 
 def coefs(df):
     g, y0, u = df["croissance_ann"].to_numpy(), df["y_init"].to_numpy(), df["uemoa"].to_numpy()
@@ -62,8 +65,11 @@ def signes():
     res.to_csv(C.PROC / "signes_sources.csv", index=False)
     print(f"\n[3] Signes WDI vs PWT sur N={len(m)} pays (coupe de base)")
     print(res.round(5).to_string(index=False))
+    verdicts = []
     for nom, a, b in (("β absolu", bw, bp), ("interaction de groupe", dw, dp)):
-        print(f"  {nom} : {'signes identiques' if np.sign(a) == np.sign(b) else 'SIGNES DIFFÉRENTS -> résultat « FRAGILE », on ne rattrape pas'}")
+        v = f"  {nom} : {'signes identiques' if np.sign(a) == np.sign(b) else 'SIGNES DIFFÉRENTS -> résultat « FRAGILE », on ne rattrape pas'}"
+        print(v); verdicts.append("- " + v.strip())
+    return [f"### Signes WDI vs PWT (coupe de base, N = {len(m)})", "```", res.round(5).to_string(index=False), "```"] + verdicts
 
 def dominants():
     long = pd.read_csv(C.PROC / "long_flags.csv")
@@ -76,6 +82,9 @@ def dominants():
     d.round(3).to_csv(C.PROC / "dominants.csv")
     print("\n[4] Pays dominants (indicatif ; MCO non pondérée en base, retrait un par un en robustesse — jamais exclus de la base)")
     print(d[d["dominant"]].round(3).to_string() if d["dominant"].any() else "aucun")
+    return ["### Pays dominants (indicatif ; repérés, jamais exclus de la base)", "```",
+            d[d["dominant"]].round(3).to_string() if d["dominant"].any() else "aucun", "```"]
 
 if __name__ == "__main__":
-    ruptures(); comparer_blocs(); signes(); dominants()
+    lignes = ruptures() + comparer_blocs() + signes() + dominants()
+    R.consigner("RUPTURES ET SOURCES CROISÉES (étape 6)", lignes)

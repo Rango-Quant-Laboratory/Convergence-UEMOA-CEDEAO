@@ -1,0 +1,23 @@
+- commit2: À REMPLIR
+- hash_seuils: 411422bf5cf4dc3086b0b8ee91b434d18ed0f6739edea47061fe63a89e389765
+- seuils_finaux: {"N_min": 12, "N_min_groupe": 5, "df_min": 8, "pib_n_obs": 31, "pib_gap_max": 2, "pib_bord_min": 3, "covar_n_obs": 27, "panel_pays_min": 12, "panel_blocs_min": 5, "bloc_valide_min": 3, "rupture_dlog": 0.15, "dominant_part": 0.3}
+- ecarts_vs_depart: aucun
+- covariables_coeur: ['popgrow_wdi', 'csh_i_pwt']
+- pays_perdus_par_variable (règle déclenchée) :
+  - GNB | coupe_base | gdppc_wdi | statut_groupe_non_constant
+  - CPV | covariable | inv_wdi | n_obs=0 (exigé >= 27)
+  - LBR | covariable | inv_wdi | n_obs=0 (exigé >= 27)
+  - NGA | covariable | inv_wdi | n_obs=0 (exigé >= 27)
+  - LBR | covariable | trade_wdi | n_obs=0 (exigé >= 27)
+  - NGA | covariable | trade_wdi | n_obs=0 (exigé >= 27)
+  - CPV | covariable | hc_pwt | n_obs=0 (exigé >= 27)
+  - GIN | covariable | hc_pwt | n_obs=0 (exigé >= 27)
+  - GNB | covariable | hc_pwt | n_obs=0 (exigé >= 27)
+- N_coupe: 14 {'UEMOA': 7, 'HORS': 7}
+- N_panel: 15 {'UEMOA': 8, 'HORS': 7}
+- conditionnel: N=14 {'UEMOA': 7, 'HORS': 7}, k=4, ddl=10, realisable=True
+- extensions (N par extension): {'inv_wdi': 11, 'trade_wdi': 12, 'hc_pwt': 12}
+- pays_frontiere (à un cran d'un seuil) :
+  - aucun
+- alertes_4.6: aucune
+- valide_par: À REMPLIR
