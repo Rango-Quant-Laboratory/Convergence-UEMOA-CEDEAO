@@ -39,7 +39,7 @@ aucune
 Aucune alerte : valeurs de départ gelables telles quelles.
 
 
-## AMENDEMENT H3 — 2026-11-05 [PROPOSÉ]
+## AMENDEMENT H3 — 2026-11-05 [VALIDÉ]
 
 - remplace l'amendement « option B » (proposé, jamais validé)
 - motif (fait nouveau sur les données, pas un résultat) :
@@ -53,7 +53,7 @@ Aucune alerte : valeurs de départ gelables telles quelles.
 - alternatives écartées : (a) démographie + hc : N = 12 (7/5), ddl = 8, pile sur trois planchers, sans variable d'épargne ; (b) trois covariables : conditionnel abandonné
 - source ajoutée au tableau des variables : csh_i (PWT 11), part de formation brute de capital aux PPA courantes
 - limites à écrire : csh_i aux PPA courantes mélange quantité et prix relatif de l'investissement ; drapeau i_cig : 17 années sur 34 extrapolées pour 8 pays (BFA, CPV, GHA, GMB, GNB, LBR, NER, TGO) ; couverture complète ≠ mesure complète ; capital humain seulement en extension
-- valide_par: À REMPLIR
+- valide_par: Armando (VALIDATION SOLO — déviation au protocole, à écrire dans les limites)
 ## COLLECTE WDI — 2026-11-05
 
 - source: WDI (API wbgapi, db=2)
@@ -103,9 +103,9 @@ aucune
 Aucune alerte : valeurs de départ gelables telles quelles.
 
 
-## GEL — 2026-11-05 [BROUILLON]
+## GEL — 2026-11-05 [SCELLÉ]
 
-- commit2: À REMPLIR
+- commit2: 5800e2f
 - hash_seuils: 411422bf5cf4dc3086b0b8ee91b434d18ed0f6739edea47061fe63a89e389765
 - seuils_finaux: {"N_min": 12, "N_min_groupe": 5, "df_min": 8, "pib_n_obs": 31, "pib_gap_max": 2, "pib_bord_min": 3, "covar_n_obs": 27, "panel_pays_min": 12, "panel_blocs_min": 5, "bloc_valide_min": 3, "rupture_dlog": 0.15, "dominant_part": 0.3}
 - ecarts_vs_depart: aucun
@@ -127,4 +127,4 @@ Aucune alerte : valeurs de départ gelables telles quelles.
 - pays_frontiere (à un cran d'un seuil) :
   - aucun
 - alertes_4.6: aucune
-- valide_par: À REMPLIR
+- valide_par: Armando (VALIDATION SOLO — déviation au protocole, à écrire dans les limites)
